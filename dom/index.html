@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Registration Form</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      padding: 40px 15px;
+      margin: 0;
+    }
+
+    .container {
+      background: #ffffff;
+      padding: 25px 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 550px;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #333;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+      color: #444;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 15px;
+      padding-top: 4px;
+    }
+
+    .radio-group label {
+      font-weight: normal;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #0066cc;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #0052a3;
+    }
+
+    .error-box {
+      background-color: #ffe6e6;
+      color: #cc0000;
+      border: 1px solid #cc0000;
+      padding: 10px 15px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    .error-box ul {
+      margin: 5px 0 0 18px;
+      padding: 0;
+    }
+
+    .success-box {
+      background-color: #e6ffed;
+      color: #1f7a34;
+      border: 1px solid #1f7a34;
+      padding: 10px 15px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 25px;
+      font-size: 14px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px 10px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #0066cc;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Student Registration Form</h2>
+
+    <!-- Error & Success Messages -->
+    <div id="errorBox" class="error-box">
+      <strong>Please fix the following errors:</strong>
+      <ul id="errorList"></ul>
+    </div>
+
+    <div id="successBox" class="success-box">
+      Student registered successfully!
+    </div>
+
+    <!-- Registration Form -->
+    <form id="registrationForm" novalidate>
+      <div class="form-group">
+        <label for="fullName">Student Full Name *</label>
+        <input type="text" id="fullName" placeholder="e.g., Jane Doe" />
+      </div>
+
+      <div class="form-group">
+        <label for="age">Age *</label>
+        <input type="text" id="age" placeholder="e.g., 20" />
+      </div>
+
+      <div class="form-group">
+        <label>Gender *</label>
+        <div class="radio-group">
+          <label><input type="radio" name="gender" value="Male" /> Male</label>
+          <label><input type="radio" name="gender" value="Female" /> Female</label>
+          <label><input type="radio" name="gender" value="Other" /> Other</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="course">Course *</label>
+        <select id="course">
+          <option value="">-- Select a Course --</option>
+          <option value="Computer Science">Computer Science</option>
+          <option value="Information Technology">Information Technology</option>
+          <option value="Business Administration">Business Administration</option>
+          <option value="Engineering">Engineering</option>
+          <option value="Data Science">Data Science</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="marks">Marks (0 - 100) *</label>
+        <input type="text" id="marks" placeholder="e.g., 85" />
+      </div>
+
+      <button type="submit">Register Student</button>
+    </form>
+
+    <!-- Registered Students Table -->
+    <table id="studentTable" style="display: none;">
+      <thead>
+        <tr>
+          <th>Full Name</th>
+          <th>Age</th>
+          <th>Gender</th>
+          <th>Course</th>
+          <th>Marks</th>
+        </tr>
+      </thead>
+      <tbody id="studentTableBody"></tbody>
+    </table>
+  </div>
+
+  <script>
+    const form = document.getElementById("registrationForm");
+    const errorBox = document.getElementById("errorBox");
+    const errorList = document.getElementById("errorList");
+    const successBox = document.getElementById("successBox");
+    const studentTable = document.getElementById("studentTable");
+    const studentTableBody = document.getElementById("studentTableBody");
+
+    const students = [];
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      // Reset messages
+      errorList.innerHTML = "";
+      errorBox.style.display = "none";
+      successBox.style.display = "none";
+
+      // 1. Collect information entered into the form
+      const fullName = document.getElementById("fullName").value.trim();
+      const ageInput = document.getElementById("age").value.trim();
+      const genderNode = document.querySelector('input[name="gender"]:checked');
+      const gender = genderNode ? genderNode.value : "";
+      const course = document.getElementById("course").value;
+      const marksInput = document.getElementById("marks").value.trim();
+
+      const errors = [];
+
+      // 2. Validate that all required fields are filled
+      if (!fullName) {
+        errors.push("Student full name is required.");
+      }
+
+      if (!ageInput) {
+        errors.push("Age is required.");
+      } else {
+        // 3. Ensure the student's age is a valid number
+        const age = Number(ageInput);
+        if (isNaN(age) || !Number.isInteger(age) || age <= 0 || age > 120) {
+          errors.push("Age must be a valid whole number between 1 and 120.");
+        }
+      }
+
+      if (!gender) {
+        errors.push("Please select a gender.");
+      }
+
+      if (!course) {
+        errors.push("Please select a course.");
+      }
+
+      if (!marksInput) {
+        errors.push("Marks are required.");
+      } else {
+        // 4. Ensure marks are between 0 and 100
+        const marks = Number(marksInput);
+        if (isNaN(marks) || marks < 0 || marks > 100) {
+          errors.push("Marks must be a valid number between 0 and 100.");
+        }
+      }
+
+      // 5. Display an error message if the information is invalid
+      if (errors.length > 0) {
+        errors.forEach(function (err) {
+          const li = document.createElement("li");
+          li.textContent = err;
+          errorList.appendChild(li);
+        });
+        errorBox.style.display = "block";
+        return;
+      }
+
+      // Store and display valid student data
+      const student = {
+        fullName,
+        age: Number(ageInput),
+        gender,
+        course,
+        marks: Number(marksInput)
+      };
+
+      students.push(student);
+      renderTable();
+
+      successBox.style.display = "block";
+      form.reset();
+    });
+
+    function renderTable() {
+      studentTableBody.innerHTML = "";
+      students.forEach(function (s) {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${escapeHTML(s.fullName)}</td>
+          <td>${s.age}</td>
+          <td>${escapeHTML(s.gender)}</td>
+          <td>${escapeHTML(s.course)}</td>
+          <td>${s.marks}</td>
+        `;
+        studentTableBody.appendChild(row);
+      });
+      studentTable.style.display = "table";
+    }
+
+    function escapeHTML(str) {
+      const div = document.createElement("div");
+      div.textContent = str;
+      return div.innerHTML;
+    }
+  </script>
+
+</body>
+</html>
