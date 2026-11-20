@@ -292,7 +292,7 @@
       studentTableBody.innerHTML = "";
       students.forEach(function (s) {
         const row = document.createElement("tr");
-        row.innerHTML = `
+        row.innerHTML = 
           <td>${escapeHTML(s.fullName)}</td>
           <td>${s.age}</td>
           <td>${escapeHTML(s.gender)}</td>

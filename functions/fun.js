@@ -50,3 +50,8 @@ function addnumbers(a, b){
 }
 let answe = addnumbers(20, 20)
 console.log(answe)
+
+function add(a , b) {
+    return a + b
+}
+console.log (add(2 , 3));
